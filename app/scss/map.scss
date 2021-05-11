@@ -1,0 +1,65 @@
+.app__map {
+  height: 680px;
+  width: 1000px;
+}
+
+.hint__content {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+  color: #1e355d;
+  padding: 10px;
+}
+
+.ymaps-2-1-78-balloon__content,
+.ymaps-2-1-78-balloon__layout,
+.ymaps-2-1-78-balloon__tail:after {
+  background-color: #1e355d !important;
+}
+
+.ymaps-2-1-78-balloon__close-button {
+  width: 10px !important;
+  height: 10px !important;
+  margin: 10px;
+  opacity: 1 !important;
+  background: url("../img/close.png") center/cover no-repeat !important;
+}
+
+.balloon__content {
+  width: 300px;
+}
+
+.balloon__title {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  color: #ff9e00;
+  margin-bottom: 10px;
+}
+
+.balloon__ceo {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.balloon__phone {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 10px;
+  span {
+    margin-left: 20px;
+  }
+}
+
+.balloon__email {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+  color: #8fd4f1;
+  text-decoration: none;
+}
