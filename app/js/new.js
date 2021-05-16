@@ -1,8 +1,4 @@
-// Подключаем карту
-
 ymaps.ready(init);
-
-// Данные 
 
 const belData = [
   {
@@ -170,9 +166,41 @@ const rusData = [
   },
 ];
 
-// Инициализация карты
-
 let myMap = null;
+
+let geoObjectsBel = null;
+let geoObjectsRus = null;
+
+function createPlacemark({
+  city,
+  address,
+  cordinates,
+  ceo,
+  phone1,
+  phone2,
+  email,
+}) {
+  return new ymaps.Placemark(
+    cordinates,
+    {
+      hintContent: `<div class="hint__content">${address}</div>`,
+      balloonContent: [
+        `<div class="balloon__content">
+  <div class="balloon__title">${city}</div>
+  <div class="balloon__ceo">${ceo}</div>
+  <div class="balloon__phone">${phone1}<span>${phone2}</span></div>
+  <a href="mailto:aloalo@mail.ru" class="balloon__email">${email}</a>
+</div>`,
+      ].join(""),
+    },
+    {
+      iconLayout: "default#image",
+      iconImageHref: "../img/mark.png",
+      iconImageSize: [30, 30],
+      iconOffset: [0, 20],
+    }
+  );
+}
 
 function init() {
   myMap = new ymaps.Map("map", {
@@ -181,34 +209,15 @@ function init() {
     controls: [],
   });
 
-  // Достаём данные, создаём плейсмарки, хинты и баллуны
+  geoObjectsBel = new ymaps.GeoObjectCollection({}, {});
+  geoObjectsRus = new ymaps.GeoObjectCollection({}, {});
 
-  const geoObjects = [...belData, ...rusData].map(
-    ({ city, address, cordinates, ceo, phone1, phone2, email }) => {
-      return new ymaps.Placemark(
-        cordinates,
-        {
-          hintContent: `<div class="hint__content">${address}</div>`,
-          balloonContent: [
-            `<div class="balloon__content">
-          <div class="balloon__title">${city}</div>
-          <div class="balloon__ceo">${ceo}</div>
-          <div class="balloon__phone">${phone1}<span>${phone2}</span></div>
-          <a href="mailto:aloalo@mail.ru" class="balloon__email">${email}</a>
-        </div>`,
-          ].join(""),
-        },
-        {
-          iconLayout: "default#image",
-          iconImageHref: "../img/mark.png",
-          iconImageSize: [30, 30],
-          iconOffset: [0, 20],
-        }
-      );
-    }
-  );
-
-  // Создаём и стилизируем кластеры
+  belData.forEach((data) => {
+    geoObjectsBel.add(createPlacemark(data));
+  });
+  rusData.forEach((data) => {
+    geoObjectsRus.add(createPlacemark(data));
+  });
 
   const clusterer = new ymaps.Clusterer({
     clusterIconLayout: ymaps.templateLayoutFactory.createClass(
@@ -222,15 +231,14 @@ function init() {
         [20, 20],
       ],
     },
+    clusterDisableClickZoom: false,
   });
 
-  // Добавляем плейсмарки и кластеры
-
-  clusterer.add(geoObjects);
+  clusterer.add([...geoObjectsBel.toArray(), ...geoObjectsRus.toArray()]);
   myMap.geoObjects.add(clusterer);
+  myMap.geoObjects.add(geoObjectsBel);
+  myMap.geoObjects.add(geoObjectsRus);
 }
-
-// Табуляция между странами
 
 function tab() {
   let tabNav = document.querySelectorAll(".tabs__item"),
@@ -240,24 +248,22 @@ function tab() {
     item.addEventListener("click", selectTabNav);
   });
 
-  // Центровка по клику на табы и присваивание табу активного класса
-
   function selectTabNav() {
     const tabName = this.getAttribute("data-tab-name");
+    console.log(myMap, myMap.geoObjects);
+
     if (tabName === "bel") {
-      myMap.setCenter([53.49088641, 29.49860404], 7);
+      myMap.setBounds(geoObjectsBel.getBounds());
     } else if (tabName === "rus") {
-      myMap.setCenter([52.36459064, 45.56655587], 5);
+      myMap.setBounds(geoObjectsRus.getBounds());
     }
-    
+
     tabNav.forEach((item) => {
       item.classList.remove("is-active");
     });
     this.classList.add("is-active");
     selectTabContent(tabName);
   }
-
-  // Отрисовка контента табов 
 
   function selectTabContent(tabName) {
     tabContent.forEach((item) => {
@@ -270,22 +276,13 @@ function tab() {
 
 tab();
 
-// Аккордеоны
-
 function drop() {
   return document.querySelectorAll(".info__city").forEach((item) => {
-    
-    // Смена кординат при клике на аккордеоны
-
     item.addEventListener("click", (e) => {
       const cityId = parseInt(e.target.getAttribute("data-city-id"));
-      const city = [...rusData, ...belData].find(
-        (data) => data.cityId === cityId
-      );
+      const city = rusData.find((data) => data.cityId === cityId);
       myMap.setCenter(city.cordinates, 12);
       const parent = item.parentNode;
-
-      // Отрисовка контента аккордеонов
 
       parent.classList.contains("is-active")
         ? parent.classList.remove("is-active")
